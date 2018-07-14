@@ -1,0 +1,49 @@
+---
+output: html_document
+fontsize: 14pt
+---
+
+### Objective
+
+Demonstration of Bayesian inference using the beta-binomial model. Walkthrough of estimating the population frequency $p$ of a binomial data-generating process and posterior predictive checks of our estimates against the observed data.
+
+### Data-Generating Model
+
+Assume a data-generating process where each trial produces a response $Y$ that is binary and the probability of success is some unknown $p$. We can model $Y$ as Bernoulli random variable where $Y \sim Bern(p),\; Y \in\{0,1\},\; 0< p < 1$. The sum of these random Bernoulli variables is a binomial distribution.
+
+$$
+\begin{aligned}
+Pr(Y_1 = y_1,...,Y_n=y_n \mid p) &=  \prod_{i=1}^n p^{Y_i}(1-p)^{1-Y_i}\\
+Pr(Y_1 = y_1,...,Y_n=y_n \mid p) &=   p^{\sum_{i=1}^n Y_i}(1-p)^{n-\sum_{i=1}^n Y_i}
+\end{aligned}
+$$
+### Bayes Theorem and the Beta Conjugate Prior Distribution
+
+If we treat the sum of the Bernoulli random variables as $Z = \sum_{i=1}^n Y_i$ the Bayes theorem gives us a way to estimate the distribution of $p$ given our prior beliefs and the observed data. Bayesian inference treats the unknown variable $p$ as a random variable, in contrast to frequentist statistics which treats $p$ as fixed and unknown.
+
+$$
+\begin{aligned}
+&Pr(p \mid Z) = \frac{Pr(Z \mid p, n) Pr(p)}{\int_{0}^{1} Pr(Z \mid p, n) Pr(p) dp} \textit{(Bayes' Theorem)}\\
+\end{aligned}
+$$
+
+A prior distribution and derivation of the integral in the denominator is needed to compute the posterior distribution of $p$, along with the binomial likelihood. Conveniently, the beta distribution works as a conjugate prior for binomial likelihoods, meaning we can analytically derive the posterior distribution without evaluating the integral in the denominator or through sampling methods. This posterior distribution is also a beta distribution.
+
+$$
+\begin{aligned}
+Pr(p) &= \frac{\Gamma(a + b)}{\Gamma(a)\Gamma(b)} p^{a-1}(1-p)^{b-1}\; \textit{( Prior beta distribution)}\\
+Pr(p \mid Z) &=  \frac{\Gamma(Z + a)\Gamma(n - Z + b)}{\Gamma((Z + a) + (n - Z + b))} p^{Z + a - 1}(1-p)^{n- Z + b - 1} \;\textit{(Posterior beta distribution)}
+\end{aligned}
+$$
+
+### Prior Specification and Strength of Data
+
+The model in the next tab provides a graphical display of the beta-binomial model. The "decisiveness" of our prior belief of $p$ can influence our posterior distribution. However, a wrong prior guess as to the true value of $p$ can be overwhelmed as the number of trials $n$ increases and the strength of the observed data is clear.
+
+### Posterior Predictive Modeling
+
+Once a posterior distribution of $p$ has been calculated, we can generate repeated samples of $p^{*}$ which we can use to generate a posterior predictive distribution of $Z$, given as $Pr(Z^{sim} | Z)$. This distribution informs us of the probability of specific values of $z$ given the observed data $Z$ or $Pr(Z^* \mid Z) = \int_0^1 Pr(Z^* \mid p)Pr(p \mid Z)\; dp$. The posterior predictive distribution for binomial likelihood and beta prior is the beta-binomial distribution.
+
+$$Pr(Z^* \mid Z) = \dbinom{m}{Z^*} \frac{B(Z^* + Z + a ,n + m - Z^* -  Z + b)}{B(Z + a, n - Z + b)}\; \textit{(Beta-Binomial distribution)}$$
+
+Posterior predictive checks are helpful to determining whether the observed data is likely given our estimated model. If we find that the posterior predictive model diverges significantly from the observed data, the researcher is encouraged to revaluate their model specification or gather more data if possible.
