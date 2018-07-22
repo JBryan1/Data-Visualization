@@ -108,30 +108,44 @@ server = function(input, output, session) {
   }#binomial likelihood function for observed data
   binomial = binom.lik(x)
   
-  ####posterior predictive modeling
-  y = reactive({ seq(0,input$n,by=1) })
-  
-  sims = reactive({ input$sims })
-  
-  values = reactiveValues()
-  values$beta.binom.post = reactive({ matrix(NA,
-                           nrow=input$n+1,
-                           ncol=input$sims)
-                    })
-  values$beta.binom.post.means = reactive({ rep(NA,input$sims) })
-  
   binomial.pdf = reactive({ dbinom(y(), 
                                    size = input$n, 
                                    prob = S.y()/input$n) 
-                          })
+  })
   
-  #generate posterior values of p and store the pdf of that p
-  for (i in 1:input$sims){
-    p = reactive({ rbeta(1,shape1 = a.post(), shape2 = b.post()) })
-    values$beta.binom.post()[,i] = reactive({ dbinom(y(), input$n, prob=p()) })
-    values$beta.binom.post.means()[i] = reactive({ sum(values$beta.binom.post()[,i]*1:501) })
+  ####posterior predictive modeling
+  y = reactive({ seq(0,input$n,by=1) })
+  
+  sims = reactive({seq(1, input$sims, by=1)})
+
+
+  M = reactive({matrix(NA, nrow=input$n+1, ncol=input$sims) })
+  values = reactiveValues(beta.binom.post = isolate(M()),
+                          beta.binom.post.means = c()
+  )
+  beta.binom.post = isolate(values$beta.binom.post)
+  beta.binom.post.means = isolate(values$beta.binom.post.means)
+    
+pp.M = eventReactive(c(input$sims,input$n), {
+  M = matrix(NA, nrow=input$n+1, ncol=input$sims)
+  beta.binom.post = M
+  beta.binom.post.means = c()
+
+  sims = seq(1, input$sims, by=1)
+  y = seq(0,input$n,by=1)
+  for (i in sims){
+    p = rbeta(1,shape1 = a.post(), shape2 = b.post())
+    d = dbinom(y,input$n,prob=p)
+    beta.binom.post[,i] = d
+    avg = sum(d*y)
+    beta.binom.post.means[i] = avg
   }
-  
+  pp.M = rbind(beta.binom.post,beta.binom.post.means)
+  pp.M
+  #c(length(sims),p,dim(beta.binom.post), length(beta.binom.post.means))
+})   
+    
+# plots
   output$likPlot = renderPlot({ 
     plot(x , binomial(),
                         type ="l",
@@ -159,18 +173,52 @@ server = function(input, output, session) {
                   shape2 = b()), type = "l", 
           col = "blue",
           lwd = 3) 
+    legend("topright", 
+           legend = c("Prior Beta",
+                      "Posterior Beta"),
+           col = c("blue", "orange"),
+           lty = 1
+    )
   })
+
   #plot posterior predictive pdf
   output$ppPlot = renderPlot({
+    
+#    M = reactive({matrix(NA, nrow=input$n+1, ncol=input$sims) })
+#    values = reactiveValues(beta.binom.post = isolate(M()),
+#                              beta.binom.post.means = c()
+#    )
+#    beta.binom.post = isolate(values$beta.binom.post)
+#    beta.binom.post.means = isolate(values$beta.binom.post.means)
+#    
+#    for (i in sims()){
+#      p = reactive({ rbeta(1,shape1 = a.post(), shape2 = b.post()) })
+#      d = reactive({ dbinom(isolate(y()),input$n,prob=isolate(p()))})
+#      beta.binom.post[,i] = isolate(d())
+#      avg = reactive({ sum(beta.binom.post[,i]*1:(input$n +1)) })
+#      beta.binom.post.means[i] = isolate(avg())
+#    } 
+
     plot(y() , binomial.pdf(), col = "red", lwd= 5, type = "l", ylab = "Z")
-    for (i in 1:input$sims){
-      lines(y() , values$beta.binom.post()[,i], col ="blue", lwd = 0.5)
+    for (i in sims()){
+      lines(y(),
+            pp.M()[1:(input$n + 1),i],
+            #beta.binom.post[,i],
+            col ="blue", 
+            lwd = 0.5)
     }
+    legend("topright", 
+           legend = c("Observed Data",
+                      "PP Simulation"),
+           col = c("red", "blue"),
+           lty = 1
+    )
   })
   
   #plot histogram of posterior predicted S.y
   output$pphistPlot = renderPlot({
-    hist(values$beta.binom.post.means(),
+    hist(pp.M()[input$n + 2,],
+         breaks = "FD",
          main = "Histogram of Posterior Predictive Z",
          xlab = "Expected Sum of Y")
     abline(v = S.y(), 
