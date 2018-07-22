@@ -121,7 +121,7 @@ $(document).ready(function () {
 
 <div id="objective" class="section level3">
 <h3>Objective</h3>
-<p>Demonstration of Bayesian inference using the beta-binomial model. Walkthrough of estimating the population frequency <span class="math inline">\(p\)</span> of a binomial data-generating process and posterior predictive checks of our estimates against the observed data.</p>
+<p>Demonstration of Bayesian inference using the beta-binomial model. Walk-through of estimating the population frequency <span class="math inline">\(p\)</span> of a binomial data-generating process and posterior predictive checks of our estimates against the observed data.</p>
 </div>
 <div id="data-generating-model" class="section level3">
 <h3>Data-Generating Model</h3>
@@ -131,11 +131,14 @@ $(document).ready(function () {
 Pr(Y_1 = y_1,...,Y_n=y_n \mid p) &amp;=  \prod_{i=1}^n p^{Y_i}(1-p)^{1-Y_i}\\
 Pr(Y_1 = y_1,...,Y_n=y_n \mid p) &amp;=   p^{\sum_{i=1}^n Y_i}(1-p)^{n-\sum_{i=1}^n Y_i}
 \end{aligned}
-\]</span> ### Bayes Theorem and the Beta Conjugate Prior Distribution</p>
-<p>If we treat the sum of the Bernoulli random variables as <span class="math inline">\(Z = \sum_{i=1}^n Y_i\)</span> the Bayes theorem gives us a way to estimate the distribution of <span class="math inline">\(p\)</span> given our prior beliefs and the observed data. Bayesian inference treats the unknown variable <span class="math inline">\(p\)</span> as a random variable, in contrast to frequentist statistics which treats <span class="math inline">\(p\)</span> as fixed and unknown.</p>
+\]</span></p>
+</div>
+<div id="bayes-theorem-and-the-beta-conjugate-prior-distribution" class="section level3">
+<h3>Bayes Theorem and the Beta Conjugate Prior Distribution</h3>
+<p>If we treat the sum of the Bernoulli random variables as <span class="math inline">\(Z = \sum_{i=1}^n Y_i\)</span> then Bayes theorem gives us a way to estimate the distribution of <span class="math inline">\(p\)</span> given our prior beliefs and the observed data. Bayesian inference treats the unknown variable <span class="math inline">\(p\)</span> as a random variable, in contrast to frequentist statistics which treats <span class="math inline">\(p\)</span> as fixed and unknown.</p>
 <p><span class="math display">\[
 \begin{aligned}
-&amp;Pr(p \mid Z) = \frac{Pr(Z \mid p, n) Pr(p)}{\int_{0}^{1} Pr(Z \mid p, n) Pr(p) dp} \textit{(Bayes' Theorem)}\\
+&amp;Pr(p \mid Z) = \frac{Pr(Z \mid p) Pr(p)}{\int_{0}^{1} Pr(Z \mid p) Pr(p) dp} \textit{(Bayes' Theorem)}\\
 \end{aligned}
 \]</span></p>
 <p>A prior distribution and derivation of the integral in the denominator is needed to compute the posterior distribution of <span class="math inline">\(p\)</span>, along with the binomial likelihood. Conveniently, the beta distribution works as a conjugate prior for binomial likelihoods, meaning we can analytically derive the posterior distribution without evaluating the integral in the denominator or through sampling methods. This posterior distribution is also a beta distribution.</p>
@@ -152,9 +155,9 @@ Pr(p \mid Z) &amp;=  \frac{\Gamma(Z + a)\Gamma(n - Z + b)}{\Gamma((Z + a) + (n -
 </div>
 <div id="posterior-predictive-modeling" class="section level3">
 <h3>Posterior Predictive Modeling</h3>
-<p>Once a posterior distribution of <span class="math inline">\(p\)</span> has been calculated, we can generate repeated samples of <span class="math inline">\(p^{*}\)</span> which we can use to generate a posterior predictive distribution of <span class="math inline">\(Z\)</span>, given as <span class="math inline">\(Pr(Z^{sim} | Z)\)</span>. This distribution informs us of the probability of specific values of <span class="math inline">\(z\)</span> given the observed data <span class="math inline">\(Z\)</span> or <span class="math inline">\(Pr(Z^* \mid Z) = \int_0^1 Pr(Z^* \mid p)Pr(p \mid Z)\; dp\)</span>. The posterior predictive distribution for binomial likelihood and beta prior is the beta-binomial distribution.</p>
-<p><span class="math display">\[Pr(Z^* \mid Z) = \dbinom{m}{Z^*} \frac{B(Z^* + Z + a ,n + m - Z^* -  Z + b)}{B(Z + a, n - Z + b)}\; \textit{(Beta-Binomial distribution)}\]</span></p>
-<p>Posterior predictive checks are helpful to determining whether the observed data is likely given our estimated model. If we find that the posterior predictive model diverges significantly from the observed data, the researcher is encouraged to revaluate their model specification or gather more data if possible.</p>
+<p>Once a posterior distribution of <span class="math inline">\(p\)</span> has been calculated, we can generate repeated samples of <span class="math inline">\(p^{*}\)</span> which we can use to generate a posterior predictive distribution of <span class="math inline">\(Z\)</span>, given as <span class="math inline">\(Pr(Z^{*} | Z)\)</span>. This distribution informs us of the probability of specific values of <span class="math inline">\(z\)</span> given the observed data <span class="math inline">\(Z\)</span> or <span class="math inline">\(Pr(Z^* \mid Z) = \int_0^1 Pr(Z^* \mid p)Pr(p \mid Z)\; dp\)</span>. The posterior predictive distribution for binomial likelihood and beta prior is the beta-binomial distribution.</p>
+<p><span class="math display">\[Pr(Z^* \mid Z) = \dbinom{m}{Z^*} \frac{B(Z^* + Z + a ,n + m - Z^* -  Z + b)}{B(Z + a, n - Z + b)}\; \textit{(Posterior predictive distribution)}\]</span></p>
+<p>Posterior predictive checks are helpful to determining whether the observed data is likely given our estimated model. If we find that the posterior predictive model diverges significantly from the observed data, the researcher is encouraged to reevaluate their model specification or gather more data if possible.</p>
 </div>
 
 
